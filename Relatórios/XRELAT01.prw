@@ -2,7 +2,7 @@
 
 //-------------------------------------------------------------------
 /*/{Protheus.doc} RELAT01
-Exemplo 01 de relatório em TReport para Excel
+Exemplo 01 de relatório em TReport para Excel e Impressão na tela
 @author  Marcos Gonçalves
 @since   19/09/2023
 @version 1.0
