@@ -1,2 +1,2 @@
 # AdvPL
-Fontes em AdvPL criados por marcospaulofg 2
+Fontes em AdvPL criados por marcospaulofg.
