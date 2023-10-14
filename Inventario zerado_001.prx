@@ -1,0 +1,103 @@
+#include "rwmake.ch"
+
+User Function ajusta28()       
+
+SetPrvt("NOPCA,NDOC,cTitulo,_tmpLocal")
+
+/*
+*** Ajusta
+*
+* Programa para correcoes genericas com uso de arquivo externo ao Protheus
+*/
+
+nOpca := 0
+cDoc  := Space(9)
+cTitulo := "Rotina de Processamento de Inventário Zero"
+_tmpLocal := Space(2)
+
+#IFDEF WINDOWS
+       @ 96,42 TO 323,505 DIALOG oDlg TITLE cTitulo
+       @ 8,10 TO 84,222
+       @ 91,168 BMPBUTTON TYPE 1 ACTION OkProc()
+       @ 91,196 BMPBUTTON TYPE 2 ACTION Close(oDlg)
+       @ 23,14 SAY "Faz o lançamento de inventário com quantidade zerada com base na SB2"
+       @ 53,14 SAY "Crie um número do documento para este inventário: "
+       @ 53,144 GET cDoc PICTURE "!@" VALID !Vazio()
+       @ 63,14 SAY "Armazém: "
+       @ 63,144 GET _tmpLocal PICTURE "@!" VALID !Vazio() 
+       ACTIVATE DIALOG oDlg CENTERED
+
+#ENDIF
+
+Return
+
+Static Function OkProc()
+Close(oDlg)
+Processa( {|| AjusRun() } )
+Return
+
+/*
+*** AjusRun 
+*
+*/
+
+Static Function AjusRun()
+
+dbSelectArea("SB2")
+ProcRegua(RecCount())
+dbGoTop()
+
+While ! Eof()
+
+      If _tmpLocal != sb2->b2_local
+         
+         dbSkip()
+         Loop
+         
+      EndIf
+
+      IncProc("Zerando inventário do produto " + RTrim(sb2->b2_cod) + "...")
+      
+/*      _tmpGrupo := Posicione("SB1",1,xFilial("SB1") + sb2->b2_cod,"B1_GRUPO")
+
+	  If val(_tmpGrupo) < 0001 .or. val(_tmpGrupo) > 0013
+         
+         dbSkip()
+         Loop
+         
+      EndIf
+*/
+      _tmpTipo  := Posicione("SB1",1,xFilial("SB1") + sb2->b2_cod,"B1_TIPO")
+
+      _b7_filial  := xFilial()
+      _b7_cod     := sb2->b2_cod
+      _b7_local   := sb2->b2_local
+      _b7_tipo    := _tmpTipo
+      _b7_doc     := cDoc
+      _b7_quant   := 0
+      _b7_qtsegum := 0
+      _b7_data    := dDataBase
+      _b7_dtvalid := dDataBase
+
+      dbSelectArea("SB7")
+
+      Reclock("SB7",.T.)
+
+      SB7->B7_FILIAL  := _b7_filial
+      SB7->B7_COD     := _b7_cod
+      SB7->B7_LOCAL   := _b7_local
+      SB7->B7_TIPO    := _b7_tipo
+      SB7->B7_DOC     := _b7_doc
+      SB7->B7_QUANT   := _b7_quant
+      SB7->B7_QTSEGUM := _b7_qtsegum
+      SB7->B7_DATA    := _b7_data
+      SB7->B7_DTVALID := _b7_dtvalid
+      
+      MsUnlock()
+
+      dbSelectArea("SB2")
+      dbSkip()
+
+End
+
+Return
