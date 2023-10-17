@@ -35,6 +35,7 @@ User Function zGerDanfe(cNota, cSerie, cPasta)
     Private nConsTex
     Private oRetNF
     Private nColAux
+    Private oFontDet27  := TFont():New("Arial", 9, -27, .T., .F., 5, .T., 5, .T., .F.)    
     Default cNota   := ""
     Default cSerie  := ""
     Default cPasta  := GetTempPath()
@@ -78,7 +79,7 @@ User Function zGerDanfe(cNota, cSerie, cPasta)
         oDanfe:cPathPDF := cPasta                
         oDanfe:lServer  := .F.
         oDanfe:lViewPDF := .F.
-         
+
         //Variáveis obrigatórias da DANFE (pode colocar outras abaixo)
         PixelX    := oDanfe:nLogPixelX()
         PixelY    := oDanfe:nLogPixelY()
@@ -90,6 +91,8 @@ User Function zGerDanfe(cNota, cSerie, cPasta)
         //Chamando a impressão da danfe no RDMAKE - StaticCall era no modo antigo
         //RptStatus({|lEnd| StaticCall(DANFEII, DanfeProc, @oDanfe, @lEnd, cIdent, , , .F.)}, "Imprimindo Danfe...")
 		RptStatus({|lEnd| DANFEProc(@oDanfe, @lEnd, cIdent, , , .F.)}, "Imprimindo Danfe...")
+        oDanfe:SayAlign(095, 355, "NF CANCELADA", oFontDet27, 300, 300, CLR_HRED, 0, 1)
+        oDanfe:SayAlign(420, 150, "NF CANCELADA", oFontDet27, 300, 300, CLR_HRED, 2, 2)
         oDanfe:Print()
     EndIf
      

@@ -25,7 +25,7 @@ User Function zExpDan()
 	aAdd(aPergs, {1, "Diretório",     cDiret,  "",   ".T.", "", ".T.", 80, .T.}) // MV_PAR01
 	aAdd(aPergs, {1, "Data De",       dDataDe, "",   ".T.", "", ".T.", 80, .T.}) // MV_PAR02
 	aAdd(aPergs, {1, "Data Até",      dDataAt, "",   ".T.", "", ".T.", 80, .T.}) // MV_PAR03
-	aAdd(aPergs, {2, "Gera pdf",      2, {"1=Sim",  "2=Não"}, 040, ".T.", .F.}) // MV_PAR04
+	aAdd(aPergs, {2, "Gera pdf",      1, {"1=Sim",  "2=Não"}, 040, ".T.", .F.}) // MV_PAR04
 	aAdd(aPergs, {2, "Gera xml",      1, {"1=Sim",  "2=Não"}, 040, ".T.", .F.}) // MV_PAR05
 	aAdd(aPergs, {2, "Tipo",          1, {"1=Normal (N)",  "2=Devolução (D)", "3=Fornecedor (B)"}, 060, ".T.", .F.}) // MV_PAR06
 	aAdd(aPergs, {1, "Cliente De",    cCliDe,  "", ".T.", "SA1", ".T.", 60,  .F.}) // MV_PAR07
@@ -34,7 +34,7 @@ User Function zExpDan()
 	aAdd(aPergs, {1, "NF Até",        cDocAt,  "", ".T.", "", ".T.", 90,  .T.}) // MV_PAR10
 	
 	//Mostra a tela para informas os parâmetros
-	If ParamBox(aPergs, "Informe os parâmetros")
+	If ParamBox(aPergs, "Informe os parâmetros", , , , , , , , , .T., .T.)
 		MV_PAR04 := cValToChar(MV_PAR04)
 		MV_PAR05 := cValToChar(MV_PAR05)
 		MV_PAR06 := cValToChar(MV_PAR06)
