@@ -2,7 +2,7 @@
 #Include "Totvs.ch"
 
 /*/{Protheus.doc} User Function XRELAT06
-Faturamento por produto
+Faturamento por produto em Excel
 @author Marcos Gonçalves
 @since 14/10/2023
 @version 1.0
