@@ -48,10 +48,10 @@ Static Function fGeraExcel()
     Local cBanco    := MV_PAR04
     Local cAgencia  := MV_PAR05
     Local cConta    := MV_PAR06
-    Local cSalIni   := 0
-    Local cEntIni   := 0
-    Local cSaiIni   := 0
-    
+    Local nSalIni   := 0
+	Local nSalFin   := 0
+	Local nSomaEnt	:= 0
+	Local nSomaSai	:= 0    
 
     //Montando consulta de dados
     cQuery += "SELECT " + CRLF
@@ -109,31 +109,22 @@ Static Function fGeraExcel()
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Histórico"		        , 1, 1, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Entrada"			        , 3, 3, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Saída"	                , 3, 3, .F.)
+	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Saldo inicial"	        , 3, 3, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Saldo atual"		        , 3, 3, .F.)
 	
+	nSalFin := QRY_DAD->E8_SALATUA
+	While QRY_DAD->E8_SALATUA == nSalFin
+		nSomaEnt += QRY_DAD->ENTRADA
+		nSomaSai += QRY_DAD->SAIDA
+		QRY_DAD->(DbSkip())
+    EndDo
+	QRY_DAD->(DbGoTop())
+	nSalIni := QRY_DAD->E8_SALATUA + nSomaSai - nSomaEnt
+
 	//Definindo o tamanho da regua
 	Count To nTotal
 	ProcRegua(nTotal)
 	QRY_DAD->(DbGoTop())
-	
-    nAtual++
-	IncProc("Imprimindo registro " + cValToChar(nAtual) + " de " + cValToChar(nTotal) + " [" + cValToChar(Round(100*nAtual/nTotal,2)) + "%]...")
-    
-    oFWMsExcelXlsx:AddRow(cWorkSheet, cTitulo, {;
-		QRY_DAD->E5_DATA,;
-		QRY_DAD->E5_PREFIXO,;
-		QRY_DAD->E5_NUMERO,;
-		QRY_DAD->E5_BENEF,;
-		IIF(QRY_DAD->E5_PREFIXO == Space(3),QRY_DAD->E5_HISTOR,IIF(QRY_DAD->HISTORICO == Space(40), QRY_DAD->B1_DESC, QRY_DAD->HISTORICO)),;
-		QRY_DAD->ENTRADA,;
-        QRY_DAD->SAIDA,;
-		QRY_DAD->E8_SALATUA;
-	})
-    cSalIni := QRY_DAD->E8_SALATUA
-    cEntIni := QRY_DAD->ENTRADA
-    cSaiIni := QRY_DAD->SAIDA
-
-	QRY_DAD->(DbSkip())
 
 	//Percorrendo os dados da query
 	While !(QRY_DAD->(EoF()))
@@ -151,12 +142,11 @@ Static Function fGeraExcel()
 			IIF(QRY_DAD->E5_PREFIXO == Space(3),QRY_DAD->E5_HISTOR,IIF(QRY_DAD->HISTORICO == Space(40), QRY_DAD->B1_DESC, QRY_DAD->HISTORICO)),;
 			QRY_DAD->ENTRADA,;
             QRY_DAD->SAIDA,;
-			cSalIni - QRY_DAD->SAIDA + QRY_DAD->ENTRADA;
+            nSalIni,;			
+			nSalIni - QRY_DAD->SAIDA + QRY_DAD->ENTRADA;
 		})
 		
-        cEntIni := QRY_DAD->ENTRADA
-        cSaiIni := QRY_DAD->SAIDA    
-        cSalIni := cSalIni - cSaiIni + cEntIni
+        nSalIni := nSalIni - QRY_DAD->SAIDA + QRY_DAD->ENTRADA
 
 		QRY_DAD->(DbSkip())
 	EndDo
