@@ -1,8 +1,8 @@
 //Bibliotecas
 #Include "Totvs.ch"
 
-/*/{Protheus.doc} User Function XRELAT06
-Faturamento por produto em Excel
+/*/{Protheus.doc} User Function XRELAT07
+Relatório de extrato bancário com histórico financeiro
 @author Marcos Gonçalves
 @since 14/10/2023
 @version 1.0
@@ -34,24 +34,24 @@ Criacao do arquivo Excel na funcao XRELAT06
 /*/
 
 Static Function fGeraExcel()
-	Local cQuery  := ""
 	Local oFWMsExcelXlsx
 	Local oExcel
-	Local cArquivo    := GetTempPath() + "MOVBANC" + dToS(Date()) + "_" + StrTran(Time(), ':', '-') + ".xlsx"
+	Local cQuery     := ""
+	Local cArquivo   := GetTempPath() + "MOVBANC" + dToS(Date()) + "_" + StrTran(Time(), ':', '-') + ".xlsx"
 	Local cWorkSheet := "Extrato"
 	Local cTitulo    := "Movimentação bancária"
-	Local nAtual := 0
-	Local nTotal := 0
-	Local cFil		:= MV_PAR01
-	Local dEmisDe	:= DToS(MV_PAR02)
-	Local dEmisAte	:= DToS(MV_PAR03)
-    Local cBanco    := MV_PAR04
-    Local cAgencia  := MV_PAR05
-    Local cConta    := MV_PAR06
-    Local nSalIni   := 0
-	Local nSalFin   := 0
-	Local nSomaEnt	:= 0
-	Local nSomaSai	:= 0    
+	Local nAtual 	 := 0
+	Local nTotal 	 := 0
+	Local cFil		 := MV_PAR01
+	Local dEmisDe	 := DToS(MV_PAR02)
+	Local dEmisAte	 := DToS(MV_PAR03)
+    Local cBanco     := MV_PAR04
+    Local cAgencia   := MV_PAR05
+    Local cConta     := MV_PAR06
+    Local nSalIni    := 0
+	Local nSalFin    := 0
+	Local nSomaEnt	 := 0
+	Local nSomaSai	 := 0    
 
     //Montando consulta de dados
     cQuery += "SELECT " + CRLF
@@ -101,7 +101,7 @@ Static Function fGeraExcel()
 	oFWMsExcelXlsx:AddworkSheet(cWorkSheet)
 	
 	//Criando a Tabela e as colunas
-	oFWMsExcelXlsx:AddTable(cWorkSheet, cTitulo, .F.)
+	oFWMsExcelXlsx:AddTable(cWorkSheet , cTitulo, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Data"		            , 1, 1, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Prefixo"	                , 1, 1, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Documento"		        , 1, 1, .F.)
@@ -109,9 +109,9 @@ Static Function fGeraExcel()
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Histórico"		        , 1, 1, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Entrada"			        , 3, 3, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Saída"	                , 3, 3, .F.)
-	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Saldo inicial"	        , 3, 3, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Saldo atual"		        , 3, 3, .F.)
 	
+	//Calculando saldo inicial
 	nSalFin := QRY_DAD->E8_SALATUA
 	While QRY_DAD->E8_SALATUA == nSalFin
 		nSomaEnt += QRY_DAD->ENTRADA
@@ -133,6 +133,13 @@ Static Function fGeraExcel()
 		nAtual++
 		IncProc("Imprimindo registro " + cValToChar(nAtual) + " de " + cValToChar(nTotal) + " [" + cValToChar(Round(100*nAtual/nTotal,2)) + "%]...")
 		
+		//Calculando o saldo final
+		If nAtual == 1
+			nSalFin := nSalIni - QRY_DAD->SAIDA + QRY_DAD->ENTRADA
+		Else
+			nSalFin := nSalFin - QRY_DAD->SAIDA + QRY_DAD->ENTRADA
+		EndIf
+
 		//Adicionando uma nova linha
 		oFWMsExcelXlsx:AddRow(cWorkSheet, cTitulo, {;
 			QRY_DAD->E5_DATA,;
@@ -141,17 +148,52 @@ Static Function fGeraExcel()
 			QRY_DAD->E5_BENEF,;
 			IIF(QRY_DAD->E5_PREFIXO == Space(3),QRY_DAD->E5_HISTOR,IIF(QRY_DAD->HISTORICO == Space(40), QRY_DAD->B1_DESC, QRY_DAD->HISTORICO)),;
 			QRY_DAD->ENTRADA,;
-            QRY_DAD->SAIDA,;
-            nSalIni,;			
-			nSalIni - QRY_DAD->SAIDA + QRY_DAD->ENTRADA;
+            QRY_DAD->SAIDA,;			
+			nSalFin;
 		})
-		
-        nSalIni := nSalIni - QRY_DAD->SAIDA + QRY_DAD->ENTRADA
 
 		QRY_DAD->(DbSkip())
 	EndDo
+
+	//Calculando total de entradas e saídas
+	QRY_DAD->(DbGoTop())
+
+	nSomaEnt := 0
+	nSomaSai := 0
+
+	While !(QRY_DAD->(EoF()))
+		nSomaEnt += QRY_DAD->ENTRADA
+		nSomaSai += QRY_DAD->SAIDA
+		QRY_DAD->(DbSkip())
+	EndDo
+
 	QRY_DAD->(DbCloseArea())
 	
+	//Criando linha em branco
+	oFWMsExcelXlsx:AddRow(cWorkSheet, cTitulo, {})
+
+	//Criando linha de saldo inicial, total de entradas, total de saídas e saldo final
+	oFWMsExcelXlsx:SetBold(.T.)
+	oFWMsExcelXlsx:AddRow(cWorkSheet, cTitulo, {,,,,,,;
+		"Saldo inicial",;
+		nSalIni;
+	})
+
+	oFWMsExcelXlsx:AddRow(cWorkSheet, cTitulo, {,,,,,,;
+		"Entradas totais",;
+		nSomaEnt;
+	})
+
+	oFWMsExcelXlsx:AddRow(cWorkSheet, cTitulo, {,,,,,,;
+		"Saídas totais",;
+		nSomaSai;
+	})	
+
+	oFWMsExcelXlsx:AddRow(cWorkSheet, cTitulo, {,,,,,,;
+		"Saldo final",;
+		nSalFin;
+	})
+
 	//Ativando o arquivo e gerando o xml
 	oFWMsExcelXlsx:Activate()
 	oFWMsExcelXlsx:GetXMLFile(cArquivo)
