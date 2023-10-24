@@ -90,7 +90,7 @@ User Function zGerDanfe(cNota, cSerie, cPasta)
          
         //Chamando a impressão da danfe no RDMAKE - StaticCall era no modo antigo
         //RptStatus({|lEnd| StaticCall(DANFEII, DanfeProc, @oDanfe, @lEnd, cIdent, , , .F.)}, "Imprimindo Danfe...")
-		RptStatus({|lEnd| DANFEProc(@oDanfe, @lEnd, cIdent, , , .F.)}, "Imprimindo Danfe...")
+		RptStatus({|lEnd| U_DANFEProc(@oDanfe, @lEnd, cIdent, , , .F.)}, "Imprimindo Danfe...")
         oDanfe:SayAlign(095, 355, "NF CANCELADA", oFontDet27, 300, 300, CLR_HRED, 0, 1)
         oDanfe:SayAlign(420, 150, "NF CANCELADA", oFontDet27, 300, 300, CLR_HRED, 2, 2)
         oDanfe:Print()
