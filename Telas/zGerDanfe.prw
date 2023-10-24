@@ -35,7 +35,8 @@ User Function zGerDanfe(cNota, cSerie, cPasta)
     Private nConsTex
     Private oRetNF
     Private nColAux
-    Private oFontDet27  := TFont():New("Arial", 9, -27, .T., .F., 5, .T., 5, .T., .F.)    
+    Private oFontDet27  := TFont():New("Arial", 9, -27, .T., .F., 5, .T., 5, .T., .F.)
+    Private oFontDet99  := TFont():New("Andale Mono", 9, -120, .T., .F., 5, .T., 5, .T., .F.)   
     Default cNota   := ""
     Default cSerie  := ""
     Default cPasta  := GetTempPath()
@@ -91,8 +92,10 @@ User Function zGerDanfe(cNota, cSerie, cPasta)
         //Chamando a impressão da danfe no RDMAKE - StaticCall era no modo antigo
         //RptStatus({|lEnd| StaticCall(DANFEII, DanfeProc, @oDanfe, @lEnd, cIdent, , , .F.)}, "Imprimindo Danfe...")
 		RptStatus({|lEnd| U_DANFEProc(@oDanfe, @lEnd, cIdent, , , .F.)}, "Imprimindo Danfe...")
-        oDanfe:SayAlign(095, 355, "NF CANCELADA", oFontDet27, 300, 300, CLR_HRED, 0, 1)
-        oDanfe:SayAlign(420, 150, "NF CANCELADA", oFontDet27, 300, 300, CLR_HRED, 2, 2)
+        oDanfe:Box(048, 385, 068, 570, "-5")       
+        oDanfe:SayAlign(043, 389, "NF CANCELADA", oFontDet27, 200, 100, CLR_HRED, 0, 1)
+        oDanfe:Say(800, 60, "NF CANCELADA", oFontDet99, , RGB(255, 119, 119), 315)
+        
         oDanfe:Print()
     EndIf
      

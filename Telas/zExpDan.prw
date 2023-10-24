@@ -71,6 +71,60 @@ Static Function fProcessa()
 	Local lPDF   := MV_PAR04 == "1"
 	Local cDir   := MV_PAR01
 	
+/*	//Exibo registros deletados
+	Set Deleted Off
+
+	//Abro a tabela SF2
+	DbSelectArea('SF2')
+
+	//Vou para o Recno 1
+	SF2->(DbGoTop())
+
+	//Verifico se está posicionado no registro que quer
+	If(SF2->(dbSeek(xFilial("SF2")+MV_PAR09+"1  ")))
+
+	    //Recupero o registro
+	    RecLock('SF2', .F.)
+	        SF2->(DbRecall())
+	    SF2->(MsUnlock())
+
+	Endif
+
+	//Fecho a tabela
+	SF2->(DbCloseArea())
+
+
+
+
+	//Abro a tabela SD2
+	DbSelectArea('SD2')
+
+	//Vou para o Recno 1
+	SD2->(DbGoTop())
+
+	//Abro o índice 3
+	SD2->(dbSetOrder(3))
+
+	//Verifico se está posicionado no registro que quer
+	If(SD2->(dbSeek(xFilial("SD2")+MV_PAR09+"1  ")))
+		While D2_DOC == MV_PAR09
+			//Recupero o registro
+	    	RecLock('SD2', .F.)
+	    	    SD2->(DbRecall())
+	    	SD2->(MsUnlock())
+			SD2->(dbSkip()) // pula pro próximo registro
+		EndDo
+	Endif
+
+	//Fecho a tabela
+	SD2->(DbCloseArea())
+
+	//Exibo apenas registros válidos
+	Set Deleted On
+
+	//NAO ESQUECER DE DELETAR NOVAMENTE A NOTA
+*/
+
 	//Montando a query para geração das Notas Fiscais
 	cQuery := " SELECT " + CRLF
 	cQuery += "     F2_DOC, " + CRLF
