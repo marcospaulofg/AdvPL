@@ -45,12 +45,16 @@ Static Function fGeraExcel()
 	
 	//Montando consulta de dados
 	cQuery += "SELECT " + CRLF
+	cQuery += "D2_ITEM, " + CRLF
 	cQuery += "D2_EMISSAO, " + CRLF
 	cQuery += "D2_DOC, " + CRLF
-	cQuery += "A1_NREDUZ, " + CRLF
+	//cQuery += "A1_NREDUZ, " + CRLF
+	cQuery += "D2_CLIENTE, " + CRLF
+	cQuery += "D2_LOJA, " + CRLF
 	cQuery += "D2_COD, " + CRLF
 	cQuery += "B1_DESC, " + CRLF
 	cQuery += "D2_UM, " + CRLF
+	cQuery += "D2_SEGUM, " + CRLF
 	cQuery += "D2_QUANT, " + CRLF
 	cQuery += "D2_PRCVEN, " + CRLF
 	cQuery += "D2_TOTAL, " + CRLF
@@ -60,12 +64,13 @@ Static Function fGeraExcel()
 	cQuery += "FROM " + CRLF
 	cQuery += ""+RetSQLName("SD2010")+" " + CRLF
 	cQuery += "LEFT JOIN "+RetSQLName("SB1010")+" ON (D2_COD = B1_COD) " + CRLF
-	cQuery += "LEFT JOIN "+RetSQLName("SA1010")+" ON (D2_CLIENTE = A1_COD AND D2_LOJA = A1_LOJA) " + CRLF
+	//cQuery += "LEFT JOIN "+RetSQLName("SA1010")+" ON (D2_CLIENTE = A1_COD AND D2_LOJA = A1_LOJA) " + CRLF
 	cQuery += " " + CRLF
 	cQuery += "WHERE " + CRLF
 	cQuery += "D2_EMISSAO BETWEEN '"+dEmisDe+"' AND '"+dEmisAte+"' " + CRLF
 	cQuery += "AND D2_FILIAL = '"+cFil+"' " + CRLF
-	cQuery += "AND SD2010.D_E_L_E_T_ = ' ' AND SB1010.D_E_L_E_T_ = ' ' AND SA1010.D_E_L_E_T_ = ' ' " + CRLF
+	cQuery += "AND SD2010.D_E_L_E_T_ = ' ' AND SB1010.D_E_L_E_T_ = ' ' " + CRLF
+	//cQuery += "AND SA1010.D_E_L_E_T_ = ' ' " + CRLF
 	
 	//Executando consulta e setando o total da regua
 	PlsQuery(cQuery, "QRY_DAD")
@@ -79,18 +84,20 @@ Static Function fGeraExcel()
 	
 	//Criando a Tabela e as colunas
 	oFWMsExcelXlsx:AddTable(cWorkSheet, cTitulo, .F.)
-	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Emissão"		, 1, 1, .F.)
-	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Documento"	, 1, 1, .F.)
-	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Cliente"		, 1, 1, .F.)
+	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Item"		, 1, 1, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Código"		, 1, 1, .F.)
-	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Produto"		, 1, 1, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Und"			, 1, 1, .F.)
+	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Seg. Und"	, 1, 1, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Quantidade"	, 3, 2, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Vlr und"		, 3, 3, .F.)
-	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Vlr total"	, 3, 3, .T.)
+	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Vlr total"	, 3, 3, .F.)
 	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Peso total"	, 3, 2, .F.)
-	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Custo und"	, 3, 3, .F.)
-	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Custo total"	, 3, 3, .T.)
+	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "CLiente"		, 1, 1, .F.)
+	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Loja"		, 1, 1, .F.)
+	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Emissão"		, 1, 4, .F.)
+	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Documento"	, 1, 1, .F.)
+	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Custo total"	, 3, 3, .F.)
+	oFWMsExcelXlsx:AddColumn(cWorkSheet, cTitulo, "Produto"		, 1, 1, .F.)
 	
 	//Definindo o tamanho da regua
 	Count To nTotal
@@ -106,18 +113,20 @@ Static Function fGeraExcel()
 		
 		//Adicionando uma nova linha
 		oFWMsExcelXlsx:AddRow(cWorkSheet, cTitulo, {;
-			QRY_DAD->D2_EMISSAO,;
-			QRY_DAD->D2_DOC,;
-			QRY_DAD->A1_NREDUZ,;
+			QRY_DAD->D2_ITEM,;
 			QRY_DAD->D2_COD,;
-			QRY_DAD->B1_DESC,;
 			QRY_DAD->D2_UM,;
+			QRY_DAD->D2_SEGUM,;
 			QRY_DAD->D2_QUANT,;
 			QRY_DAD->D2_PRCVEN,;
 			QRY_DAD->D2_TOTAL,;
 			QRY_DAD->D2_PESO*QRY_DAD->D2_QUANT,;
-			QRY_DAD->D2_CUSTO1/QRY_DAD->D2_QUANT,;
-			QRY_DAD->D2_CUSTO1;
+			QRY_DAD->D2_CLIENTE,;
+			QRY_DAD->D2_LOJA,;
+			QRY_DAD->D2_EMISSAO,;
+			QRY_DAD->D2_DOC,;
+			QRY_DAD->D2_CUSTO1,;
+			QRY_DAD->B1_DESC;
 		})
 		
 		QRY_DAD->(DbSkip())
