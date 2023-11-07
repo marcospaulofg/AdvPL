@@ -31,21 +31,21 @@ WSMETHOD GET WSRECEIVE cMensagem WSSERVICE WebSrv01
 Local cRetorno := ""
 
 // define o tipo de retorno do método
-::SetContentType("application/json")
+::SetContentType("application/json;charset=UTF-8")
 //::SetContentType("text/html")
 
 If Len(::cMensagem) > 20
    cRetorno := '{' + CRLF
-   cRetorno += '  "Retorno":"Mensagem: ' + ::Mensagem + ' Recebida com sucesso!"' + CRLF
+   cRetorno += '  "Retorno":"Mensagem: ' + ::cMensagem + ' Recebida com sucesso!"' + CRLF
    cRetorno += '}'
    ::SetResponse(cRetorno)
-   ::SetResponse(200)
+   ::SetStatus(200)
 Else
    cRetorno := '{' + CRLF
    cRetorno += '  "Retorno":"Falha, mensagem enviada é insuficiente."' + CRLF
    cRetorno += '}'
    ::SetResponse(cRetorno)
-   ::SetResponse(400)
+   ::SetStatus(400)
 EndIf
 
 Return .T.
