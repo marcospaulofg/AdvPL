@@ -2,50 +2,38 @@
 #include "Topconn.ch"  
 #include "RESTFUL.CH"
 
-/*
-{Protheus.doc} WebSrv01
-Exemplo de classe usada no Web Services REST/Server
-@author  Marcos Gonçalves
-@since   07/11/2023
-@version 1.0
-*/
-
 WSRESTFUL WebSrv01 DESCRIPTION "Exemplo 01 de Web Service REST ADVPL"
 
-WSDATA cMensagem AS STRING
+   WSDATA cMensagem AS STRING
 
-WSMETHOD GET DESCRIPTION "Get da classe WebSrv01"
+   WSMETHOD GET DESCRIPTION "Get da classe WebSrv01"
 
 END WSRESTFUL
-
-/*
-{Protheus.doc} GET
-Método GET da classe
-@author  Marcos Gonçalves
-@since   07/11/2023
-@version 1.0
-*/
 
 WSMETHOD GET WSRECEIVE cMensagem WSSERVICE WebSrv01
 
 Local cRetorno := ""
 
-// define o tipo de retorno do método
-::SetContentType("application/json;charset=UTF-8")
-//::SetContentType("text/html")
+::SetContentType("application/json")
+
+DbSelectArea("SA1")
+SA1->(DbSetOrder(1)) //A1_FILIAL+A1_COD+A1_LOJA
+SA1->(DbGoTop())
 
 If Len(::cMensagem) > 20
    cRetorno := '{' + CRLF
-   cRetorno += '  "Retorno":"Mensagem: ' + ::cMensagem + ' Recebida com sucesso!"' + CRLF
+   cRetorno += EncodeUTF8('  "Retorno":"Mensagem: ' + ::cMensagem + SA1->SA1_COD + ' Recebida com sucesso!"') + CRLF
    cRetorno += '}'
    ::SetResponse(cRetorno)
    ::SetStatus(200)
 Else
    cRetorno := '{' + CRLF
-   cRetorno += '  "Retorno":"Falha, mensagem enviada é insuficiente."' + CRLF
+   cRetorno += EncodeUTF8('  "Retorno":"Falha, mensagem enviada é insuficiente."') + CRLF
    cRetorno += '}'
    ::SetResponse(cRetorno)
    ::SetStatus(400)
 EndIf
+
+SA1->(DbCloseArea())
 
 Return .T.
