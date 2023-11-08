@@ -22,13 +22,13 @@ SA1->(DbGoTop())
 
 If Len(::cMensagem) > 20
    cRetorno := '{' + CRLF
-   cRetorno += EncodeUTF8('  "Retorno":"Mensagem: ' + ::cMensagem + SA1->SA1_COD + ' Recebida com sucesso!"') + CRLF
+   cRetorno += EncodeUTF8('"Retorno":"Mensagem: ' + ::cMensagem + SA1->SA1_COD + ' Recebida com sucesso!"') + CRLF
    cRetorno += '}'
    ::SetResponse(cRetorno)
    ::SetStatus(200)
 Else
    cRetorno := '{' + CRLF
-   cRetorno += EncodeUTF8('  "Retorno":"Falha, mensagem enviada é insuficiente."') + CRLF
+   cRetorno += EncodeUTF8('"Retorno":"Falha, mensagem enviada é insuficiente."') + CRLF
    cRetorno += '}'
    ::SetResponse(cRetorno)
    ::SetStatus(400)
