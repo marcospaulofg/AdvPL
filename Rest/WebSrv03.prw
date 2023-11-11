@@ -1,63 +1,125 @@
-#Include "Protheus.ch"
-#Include "TOTVS.ch"
+#Include "TOTVS.ch"    
 #include "Topconn.ch"  
-#include "RESTFUL.ch"
+#include "RESTFUL.CH"
 
-/*
-{Protheus.doc} WebSrv03
-Exemplo de API REST para extrair dados das tabelas
-@author  Marcos Gonçalves
-@since   07/11/2023
-@version 1.0
-*/
+//+------------------------------------------------------------------------------------------------------------------+
+//| Programa | MT4WebSrv0310ALT | Autor | Marcos Gonçalves | Data | 10.11.2023 | 
+//+------------------------------------------------------------------------------------------------------------------+
+//| Descr. | Exemplo de API REST Consulta de Fornecedor | 
+//| | PARA CONEXÃO COM O APP POR API PARA SER SUBMETIDO A LIBERAÇÃO | 
+//+------------------------------------------------------------------------------------------------------------------+
+//| Uso | Canal Youtube | 
+//+------------------------------------------------------------------------------------------------------------------+
 
-WSRESTFUL WebSrv03 DESCRIPTION "WebService para consulta de clientes" FORMAT APPLICATION_JSON
-    WSMETHOD GET V1;
-    DESCRIPTION "Retorna infomaçoes do cliente.";
-    PATH "/V1/{codigo}/{loja}";
-    WSSYNTAX "/V1/{codigo}/{loja}"
+WSRESTFUL WebSrv03 DESCRIPTION "Teste de API REST Protheus" FORMAT APPLICATION_JSON
+WSDATA cpfCnpjForn	       AS CHARACTER  OPTIONAL
+WSDATA codigoLojaForn       AS CHARACTER  OPTIONAL
+WSDATA nomeForn		       AS CHARACTER  OPTIONAL
+
+WSMETHOD GET ConsultaFornecedor;
+	DESCRIPTION "API utilizada para efetuar a consulta de Fornecedores";
+	WSSYNTAX "/consultar/fornecedores/?{cpfCnpjForn}&{codigoLojaForn}&{nomeForn}";
+	PATH "/consultar/fornecedores/";
+	TTALK "ConsultaFornecedor";
+	PRODUCES APPLICATION_JSON
 
 END WSRESTFUL
 
-// Método GET
 
-WSMETHOD GET V1 WSSERVICE WebSrv03
+WSMETHOD GET ConsultaFornecedor HEADERPARAM cpfCnpjForn, codigoLojaForn, nomeForn  WSSERVICE WebSrv03
 
-    //variaveis
-    Local cCodigo   := self:aURLParms[2]
-    Local cLoja     := self:aURLParms[3]
-    Local oCliente  := JsonObject():New()
-    Local cResponse := ""
 
-    //abre alias sa1
-    DbSelectArea("SA1")
-    SA1->(DbSetOrder(1)) //A1_FILIAL+A1_COD+A1_LOJA
-    SA1->(DbGoTop())
+Local oResponse		:=	Nil
+Local aResponse		:=	{}
+Local oForn
+Local lRet			:=	.T.
+Local cCnpj         := ""
+Local cCodFor       := ""
+Local cNomFor       := ""
+Local cQuery        := ""
+Local cAliasSA2     
 
-    //valida codigo e loja
-    if Len(cCodigo) != 20 .OR. Len(cLoja) != 2
-        SetRestFault(400, EncodeUTF8("Código ou loja inválido."))
-        return .F.
-    endif
 
-    //posiciona no cliente
-    if !SA1->(DbSeek(xFilial("SA1") + cCodigo + cLoja))
-        SetRestFault(404, EncodeUTF8("Cliente não localizado."))
-        return .F.
-    endif
+if ( ValType( self:cpfCnpjForn  ) == "C" .and. !Empty( self:cpfCnpjForn  ) )
+   cCnpj := self:cpfCnpjForn
+   cCnpj := StrTran(cCnpj,".","")
+   cCnpj := StrTran(cCnpj,"/","")
+   cCnpj := StrTran(cCnpj,"-","")
+ENDIF
 
-    //cria json
-    oCliente['codigo']      := AllTrim(SA1->A1_COD)
-    oCliente['loja']        := AllTrim(SA1->A1_LOJA)
-    oCliente['uf']          := AllTrim(SA1->A1_EST)
+if ( ValType( self:codigoLojaForn  ) == "C" .and. !Empty( self:codigoLojaForn  ) )
+   cCodFor := self:codigoLojaForn
+ENDIF
 
-    //json to sting
-    cResponse := oCliente:toJson()
+if ( ValType( self:nomeForn  ) == "C" .and. !Empty( self:nomeForn  ) )
+   cNomFor := self:nomeForn
+ENDIF
 
-    //define o tipo de retorno
-    self:SetContentType('application/json')
 
-    //define resposta
-    self:SetResponse(EncodeUTF8(cResponse))
+cQuery := "SELECT * "
+cQuery += "	FROM " + RetSqlName("SA2") + " SA2 " + Chr(10) + Chr (13) 
+cQuery += "WHERE SA2.D_E_L_E_T_='' "+ Chr(10) + Chr(13)
+cQuery += "AND A2_FILIAL ='"+XFILIAL("SA2")+"' "+ Chr(10) + Chr(13)
+if !empty(cCnpj)
+cQuery += "AND A2_CGC = '"+cCnpj+"' "+ Chr(10) + Chr(13)
+endif
+if !empty(cNomFor)
+   cQuery += "AND A2_NOME LIKE'%"+cNomFor+"%' "+ Chr(10) + Chr(13)
+endif
+if !empty(cCodFor)
+cQuery += "AND A2_COD + A2_LOJA ='"+cCodFor+"' "+ Chr(10) + Chr(13)
+endif
 
-Return .T.
+cQuery += "ORDER BY A2_NOME "
+
+conout("testapi: "+ cQuery)
+
+
+While .T.
+    cAliasSA2 := GetNextAlias()
+    If !TCCanOpen(cAliasSA2) .And. Select(cAliasSA2) == 0
+        Exit
+    EndIf
+EndDo
+
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cAliasSA2,.F.,.T.) 
+DbSelectArea(cAliasSA2)
+(cAliasSA2)->(DbGoTop())
+
+IF (cAliasSA2)->(EOF())
+   (cAliasSA2)->(DbcloseArea())
+   oResponse := JsonObject():New()
+   oResponse["consultarResultado"]	:= {}
+   self:SetResponse( oResponse:ToJson() )
+   FreeObj( oResponse )
+   oResponse := Nil
+   Return( lRet )
+ELSE
+   While !(cAliasSA2)->(EOF())
+                    
+        oForn  := nil
+        oForn  := JsonObject():New()
+        oForn["codigoLojaForn"]          := (cAliasSA2)->A2_COD + (cAliasSA2)->A2_LOJA
+        oForn["cpfCnpjForn"]             := (cAliasSA2)->A2_CGC
+        oForn["nomeForn"]                := ALLTRIM((cAliasSA2)->A2_NOME)
+        oForn["nomeFantasia"]            := ALLTRIM((cAliasSA2)->A2_NREDUZ)
+        oForn["endereco"]                := ALLTRIM((cAliasSA2)->A2_END)
+        oForn["cep"]                     := (cAliasSA2)->A2_CEP
+        oForn["bairro"]                  := alltrim((cAliasSA2)->A2_BAIRRO)
+        oForn["estado"]                  := (cAliasSA2)->A2_EST
+       
+        aadd(aResponse,oForn)
+        
+        (cAliasSA2)->(dbskip())
+    Enddo 
+    (cAliasSA2)->(DbcloseArea())
+     
+    oResponse := JsonObject():New()
+    oResponse["consultarResultado"]	:= aResponse
+    self:SetResponse( EncodeUTF8(oResponse:ToJson()) )
+ENDIF
+
+FreeObj( oResponse )
+oResponse := Nil
+
+Return( lRet )
