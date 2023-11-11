@@ -1,4 +1,4 @@
-#Include "Protheus.ch"
+#INCLUDE "TOTVS.CH"
 
 //-------------------------------------------------------------------
 /*/{Protheus.doc} XVALCUS
