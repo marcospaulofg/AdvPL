@@ -5,7 +5,7 @@
 Validação de custo médio na rotina de movimentações internas
 @author  Marcos Gonçalves
 @since   08/11/2023
-@version 1.0
+@version 1.1
 /*/
 //-------------------------------------------------------------------
 
