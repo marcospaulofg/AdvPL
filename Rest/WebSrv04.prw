@@ -1,63 +1,60 @@
-#Include "Protheus.ch"
 #Include "TOTVS.ch"
 #include "Topconn.ch"  
 #include "RESTFUL.ch"
 
 /*
-{Protheus.doc} WebSrv03
+{Protheus.doc} WebSrv04
 Exemplo de API REST para extrair dados das tabelas
 @author  Marcos Gonçalves
 @since   07/11/2023
 @version 1.0
+@url     http://nipobrasileira132750.protheus.cloudtotvs.com.br:2306/rest/WebSrv04
 */
 
-WSRESTFUL WebSrv03 DESCRIPTION "WebService para consulta de clientes" FORMAT APPLICATION_JSON
-    WSMETHOD GET V1;
-    DESCRIPTION "Retorna infomaçoes do cliente.";
-    PATH "/V1/{codigo}/{loja}";
-    WSSYNTAX "/V1/{codigo}/{loja}"
+WSRESTFUL WebSrv04 DESCRIPTION "Exemplo de API REST para extrair dados das tabelas" FORMAT APPLICATION_JSON
+
+    WSMETHOD GET;
+    DESCRIPTION "Get das tabela SF2";
+    PRODUCES APPLICATION_JSON
 
 END WSRESTFUL
 
 // Método GET
 
-WSMETHOD GET V1 WSSERVICE WebSrv03
+WSMETHOD GET WSSERVICE WebSrv04
 
-    //variaveis
-    Local cCodigo   := self:aURLParms[2]
-    Local cLoja     := self:aURLParms[3]
-    Local oCliente  := JsonObject():New()
-    Local cResponse := ""
+Local oJson    := JsonObject():New()
+Local oJsonAux  := JsonObject():New()
 
-    //abre alias sa1
-    DbSelectArea("SA1")
-    SA1->(DbSetOrder(1)) //A1_FILIAL+A1_COD+A1_LOJA
-    SA1->(DbGoTop())
+DbSelectArea("SF2")
+SF2->(DbSetOrder(1)) //F2_FILIAL+F2_COD
+SF2->(DbGoTop())
 
-    //valida codigo e loja
-    if Len(cCodigo) != 20 .OR. Len(cLoja) != 2
-        SetRestFault(400, EncodeUTF8("Código ou loja inválido."))
-        return .F.
-    endif
+oJson['SF2'] := {}
 
-    //posiciona no cliente
-    if !SA1->(DbSeek(xFilial("SA1") + cCodigo + cLoja))
-        SetRestFault(404, EncodeUTF8("Cliente não localizado."))
-        return .F.
-    endif
+While SF2->(!Eof())
+    oJsonAux := JsonObject():New()
 
-    //cria json
-    oCliente['codigo']      := AllTrim(SA1->A1_COD)
-    oCliente['loja']        := AllTrim(SA1->A1_LOJA)
-    oCliente['uf']          := AllTrim(SA1->A1_EST)
+    oJsonAux['Filial']       := AllTrim(SF2->F2_FILIAL)
+    oJsonAux['Numero']       := AllTrim(SF2->F2_DOC)
+    oJsonAux['Serie Docto.'] := AllTrim(SF2->F2_SERIE)
+    oJsonAux['Cliente']      := AllTrim(SF2->F2_CLIENTE)
+    oJsonAux['Loja']         := AllTrim(SF2->F2_LOJA)
+    oJsonAux['Cond. Pagto']  := AllTrim(SF2->F2_COND)
+    oJsonAux['DT Emissao']   := SF2->F2_EMISSAO
+    oJsonAux['Vlr.Bruto']    := SF2->F2_VALBRUT
+    oJsonAux['Peso Liquido'] := SF2->F2_PLIQUI
+    oJsonAux['Peso Bruto']   := SF2->F2_PBRUTO
+    oJsonAux['Transp.']      := AllTrim(SF2->F2_TRANSP)
 
-    //json to sting
-    cResponse := oCliente:toJson()
+    Aadd(oJson['SF2'],oJsonAux)
 
-    //define o tipo de retorno
-    self:SetContentType('application/json')
+    FreeObj(oJsonAux)
 
-    //define resposta
-    self:SetResponse(EncodeUTF8(cResponse))
+    SF2->(DbSkip())
+EndDo
+SF2->(DbCLoseArea())
 
-Return .T.
+Self:SetResponse(EncodeUTF8(oJson:toJson()))
+
+Return
