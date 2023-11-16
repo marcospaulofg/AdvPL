@@ -14,7 +14,7 @@
 Relatório Frete Mundial por Nota com FWMSPrinter (linhas zebradas)
 @author Marcos Gonçalves
 @since 06/10/2023
-@version 1.1
+@version 1.2
 @type function
 /*/
  
@@ -22,6 +22,7 @@ User Function XRELAT02()
     Local aArea  := FWGetArea()
     Local aPergs   := {}
     Local cCombo    := {"Alexandre de Goes", "Estrela de Davi", "LCP", "Vilmar Transporte"}
+    Local cCombo2    := {"Antiga", "Nova"}
     Private lJob := IsBlind()
      
     //Se for execução automática, não mostra pergunta, executa direto
@@ -34,6 +35,7 @@ User Function XRELAT02()
         AAdd(aPergs, {1, "Filial", Space(TamSX3("C5_FILIAL")[1]) ,,,,, 100, .T.})   // MV_PAR01
         AAdd(aPergs, {2, "Transportadora", cCombo[1], cCombo, 100,"", .T.})         // MV_PAR02
         AAdd(aPergs, {1, "Romaneio", Space(TamSX3("GW1_NRROM")[1]) ,,,,, 100, .T.}) // MV_PAR03
+        AAdd(aPergs, {2, "Cotação", cCombo2[2], cCombo2, 100,"", .T.})              // MV_PAR04
 
         //Se a pergunta for confirma, cria as definicoes do relatorio
         If ParamBox(aPergs, "Informe os parâmetros", , , , , , , , , .T., .T.)
@@ -62,6 +64,7 @@ Static Function fMontaRel()
     Local cFil        := MV_PAR01
     Local cTransp     := SUBSTR(Upper(MV_PAR02),1,TamSX3("A4_NREDUZ")[1])
     Local cRoman      := MV_PAR03
+    Local cCot        := MV_PAR04
     Local nTotal      := 0
     //Linhas e colunas
     Private nLinAtu   := 000
@@ -126,9 +129,9 @@ Static Function fMontaRel()
     cQryRel += "    'TOMATE / CX 20KG              ', " + CRLF
     cQryRel += "    'TOMATE ITALIANO / CX 20KG     ', " + CRLF
     cQryRel += "    'VAGEM MACARRAO / CX 13KG      ', " + CRLF
-    cQryRel += "    'VAGEM MANTEIGA / CX 13KG      ') THEN 3.75 " + CRLF
+    cQryRel += "    'VAGEM MANTEIGA / CX 13KG      ') THEN "+IIF(cCot=="Antiga", '3.75', '3.94')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN ( " + CRLF
-    cQryRel += "    'MORANGO / BD                  ') THEN 0.345 " + CRLF
+    cQryRel += "    'MORANGO / BD                  ') THEN "+IIF(cCot=="Antiga", '0.345', '0.355')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN ( " + CRLF
     cQryRel += "    'ABOBRINHA EMBALADA / BD       ', " + CRLF
     cQryRel += "    'BATATA BAROA EMBALADA / BD    ', " + CRLF
@@ -159,22 +162,22 @@ Static Function fMontaRel()
     cQryRel += "    'VAGEM FRANCESA - BDJ 200GR    ', " + CRLF
     cQryRel += "    'VAGEM FRANCESA EMBALADA  / BD ', " + CRLF
     cQryRel += "    'VAGEM MACARRAO EMBALADA / BD  ', " + CRLF
-    cQryRel += "    'VAGEM MANTEIGA EMBALADA / BD  ') THEN 0.3 " + CRLF
+    cQryRel += "    'VAGEM MANTEIGA EMBALADA / BD  ') THEN "+IIF(cCot=="Antiga", '0.3', '0.37')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN ( " + CRLF
-    cQryRel += "    'ABACAXI / CX 10UN             ') THEN 6              " + CRLF
+    cQryRel += "    'ABACAXI / CX 10UN             ') THEN "+IIF(cCot=="Antiga", '6', '6.3')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN ( " + CRLF
     cQryRel += "    'MANGA PALMER - CXT 6KG        ', " + CRLF
-    cQryRel += "    'MANGA TOMMY - CXT 6KG         ') THEN 2.55 " + CRLF
+    cQryRel += "    'MANGA TOMMY - CXT 6KG         ') THEN "+IIF(cCot=="Antiga", '2.55', '2.69')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN ( " + CRLF
     cQryRel += "    'PIMENTAO AMARELO / CX 5KG     ', " + CRLF
     cQryRel += "    'PIMENTAO VERDE / CX 5KG       ', " + CRLF
-    cQryRel += "    'PIMENTAO VERMELHO / CX 5KG    ') THEN 1.87 " + CRLF
+    cQryRel += "    'PIMENTAO VERMELHO / CX 5KG    ') THEN "+IIF(cCot=="Antiga", '1.87', '1.97')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN ( " + CRLF
-    cQryRel += "    'QUIABO EMBALADO / KG          ') THEN 0.6 " + CRLF
+    cQryRel += "    'QUIABO EMBALADO / KG          ') THEN "+IIF(cCot=="Antiga", '0.6', '0.74')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN ( " + CRLF
-    cQryRel += "    'BANANA TERRA / CX 15KG        ') THEN 3.4 " + CRLF
+    cQryRel += "    'BANANA TERRA / CX 15KG        ') THEN "+IIF(cCot=="Antiga", '3.4', '3.57')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN (    " + CRLF
-    cQryRel += "    'MELAO AMARELO / CX 13KG       ') THEN 3.45 " + CRLF
+    cQryRel += "    'MELAO AMARELO / CX 13KG       ') THEN "+IIF(cCot=="Antiga", '3.45', '3.62')+" " + CRLF
     cQryRel += "ELSE 0 END AS FRETE " + CRLF
     cQryRel += " " + CRLF
     cQryRel += "FROM " + CRLF
