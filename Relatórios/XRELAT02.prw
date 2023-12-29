@@ -125,6 +125,7 @@ Static Function fMontaRel()
     cQryRel += "    'INHAME / CX 20KG              ', " + CRLF
     cQryRel += "    'JILO / CX 15KG                ', " + CRLF
     cQryRel += "    'PEPINO / CX 20KG              ', " + CRLF
+    cQryRel += "    'PEPINO JAPONES / CX 10KG      ', " + CRLF
     cQryRel += "    'PIMENTAO VERDE / CX 10KG      ', " + CRLF
     cQryRel += "    'TOMATE / CX 20KG              ', " + CRLF
     cQryRel += "    'TOMATE ITALIANO / CX 20KG     ', " + CRLF
@@ -167,7 +168,8 @@ Static Function fMontaRel()
     cQryRel += "    'ABACAXI / CX 10UN             ') THEN "+IIF(cCot=="Antiga", '6', '6.3')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN ( " + CRLF
     cQryRel += "    'MANGA PALMER - CXT 6KG        ', " + CRLF
-    cQryRel += "    'MANGA TOMMY - CXT 6KG         ') THEN "+IIF(cCot=="Antiga", '2.55', '2.69')+" " + CRLF
+    cQryRel += "    'MANGA TOMMY - CXT 6KG         ', " + CRLF
+    cQryRel += "    'PESSEGO NACIONAL / CX 06KG    ') THEN "+IIF(cCot=="Antiga", '2.55', '2.69')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN ( " + CRLF
     cQryRel += "    'PIMENTAO AMARELO / CX 5KG     ', " + CRLF
     cQryRel += "    'PIMENTAO VERDE / CX 5KG       ', " + CRLF
@@ -179,7 +181,7 @@ Static Function fMontaRel()
     cQryRel += "WHEN B1_DESC IN (    " + CRLF
     cQryRel += "    'MELAO AMARELO / CX 13KG       ') THEN "+IIF(cCot=="Antiga", '3.45', '3.62')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN (    " + CRLF
-    cQryRel += "    'PESSEGO NACIONAL / CX 06KG    ') THEN "+IIF(cCot=="Antiga", '2.69', '2.55')+" " + CRLF
+    cQryRel += "    'LICHIA / CX 08BD              ') THEN "+IIF(cCot=="Antiga", '9.76', '9.76')+" " + CRLF
     cQryRel += "ELSE 0 END AS FRETE " + CRLF
     cQryRel += " " + CRLF
     cQryRel += "FROM " + CRLF
