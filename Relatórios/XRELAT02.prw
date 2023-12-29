@@ -178,6 +178,8 @@ Static Function fMontaRel()
     cQryRel += "    'BANANA TERRA / CX 15KG        ') THEN "+IIF(cCot=="Antiga", '3.4', '3.57')+" " + CRLF
     cQryRel += "WHEN B1_DESC IN (    " + CRLF
     cQryRel += "    'MELAO AMARELO / CX 13KG       ') THEN "+IIF(cCot=="Antiga", '3.45', '3.62')+" " + CRLF
+    cQryRel += "WHEN B1_DESC IN (    " + CRLF
+    cQryRel += "    'PESSEGO NACIONAL / CX 06KG    ') THEN "+IIF(cCot=="Antiga", '2.69', '2.55')+" " + CRLF
     cQryRel += "ELSE 0 END AS FRETE " + CRLF
     cQryRel += " " + CRLF
     cQryRel += "FROM " + CRLF
