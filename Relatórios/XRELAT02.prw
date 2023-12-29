@@ -195,7 +195,7 @@ Static Function fMontaRel()
     cQryRel += "WHERE " + CRLF
     cQryRel += "SF2.D_E_L_E_T_ = ' ' AND SD2.D_E_L_E_T_ = ' ' AND SA1.D_E_L_E_T_ = ' ' AND SA4.D_E_L_E_T_ = ' ' AND GW1.D_E_L_E_T_ = ' ' " + CRLF
     cQryRel += "AND F2_CLIENTE = 'MUND' " + CRLF
-    cQryRel += "AND D2_TES IN (501, 508, 509) " + CRLF
+    cQryRel += "AND D2_TES IN (501, 508, 509, 514, 515, 516) " + CRLF
     cQryRel += "AND F2_FILIAL = '"+cFil+"' " + CRLF
     cQryRel += "AND GW1_NRROM = '"+cRoman+"' " + CRLF
     cQryRel += "AND A4_NREDUZ = '"+cTransp+"' ) AS TB " + CRLF
